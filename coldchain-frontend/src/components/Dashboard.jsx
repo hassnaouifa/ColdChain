@@ -11,10 +11,15 @@ const Dashboard = () => {
 
   const loadLatest = async () => {
     try {
-      const res = await axios.get("http://192.168.221.172:8000/api/mesures/");
+      const res = await axios.get("http://localhost:8000/api/mesures/");
       const data = res.data;
+
       if (data && data.length > 0) {
-        setLatest(data[data.length - 1]); // dernière mesure
+        // Trier par date pour s'assurer que la dernière mesure est récupérée
+        const sorted = data.sort(
+          (a, b) => new Date(a.created_at) - new Date(b.created_at)
+        );
+        setLatest(sorted[sorted.length - 1]); // dernière mesure
       }
     } catch (e) {
       console.log("Erreur API :", e);
@@ -33,10 +38,21 @@ const Dashboard = () => {
     const date = moment(timestamp);
     const diff = moment.duration(now.diff(date));
 
-    if (diff.asSeconds() < 60) return `${Math.floor(diff.asSeconds())} seconde(s) (${date.format("HH:mm")})`;
-    if (diff.asMinutes() < 60) return `il y a ${Math.floor(diff.asMinutes())} minute(s) (${date.format("HH:mm")})`;
-    if (diff.asHours() < 24) return `il y a ${Math.floor(diff.asHours())} heure(s) (${date.format("HH:mm")})`;
-    return `il y a ${Math.floor(diff.asDays())} jour(s) (${date.format("HH:mm")})`;
+    if (diff.asSeconds() < 60)
+      return `${Math.floor(diff.asSeconds())} seconde(s) (${date.format(
+        "HH:mm"
+      )})`;
+    if (diff.asMinutes() < 60)
+      return `il y a ${Math.floor(diff.asMinutes())} minute(s) (${date.format(
+        "HH:mm"
+      )})`;
+    if (diff.asHours() < 24)
+      return `il y a ${Math.floor(diff.asHours())} heure(s) (${date.format(
+        "HH:mm"
+      )})`;
+    return `il y a ${Math.floor(diff.asDays())} jour(s) (${date.format(
+      "HH:mm"
+    )})`;
   };
 
   return (

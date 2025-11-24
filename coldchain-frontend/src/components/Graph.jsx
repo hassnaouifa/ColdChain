@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+// src/components/Graph.jsx
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
 import {
@@ -25,67 +26,78 @@ ChartJS.register(
 );
 
 const Graph = () => {
-  const [data, setData] = useState([]);
   const [chartData, setChartData] = useState(null);
-  const chartRef = useRef(null);
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("http://localhost:8000/api/mesures/");
+      const data = res.data;
+
+      if (!data || data.length === 0) return;
+
+      // Trier les données par date
+      const sorted = data.sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      );
+
+      // Créer les gradients dynamiquement (nécessite un canvas temporaire)
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const gradientTemp = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientTemp.addColorStop(0, "#00eaff");
+      gradientTemp.addColorStop(1, "rgba(0,234,255,0)");
+
+      const gradientHum = ctx.createLinearGradient(0, 0, 0, 300);
+      gradientHum.addColorStop(0, "#ff9a00");
+      gradientHum.addColorStop(1, "rgba(255,154,0,0)");
+
+      setChartData({
+        labels: sorted.map(
+          (d) =>
+            new Date(d.created_at).toLocaleDateString("fr-FR") +
+            " " +
+            new Date(d.created_at).toLocaleTimeString("fr-FR")
+        ),
+        datasets: [
+          {
+            label: "Température (°C)",
+            data: sorted.map((d) => d.temp),
+            borderColor: "#00eaff",
+            backgroundColor: gradientTemp,
+            fill: true,
+            tension: 0.5,
+            pointRadius: 0,
+            borderWidth: 3
+          },
+          {
+            label: "Humidité (%)",
+            data: sorted.map((d) => d.hum),
+            borderColor: "#ff9a00",
+            backgroundColor: gradientHum,
+            fill: true,
+            tension: 0.5,
+            pointRadius: 0,
+            borderWidth: 3
+          }
+        ]
+      });
+    } catch (err) {
+      console.log("Erreur API :", err);
+    }
+  };
 
   useEffect(() => {
-    axios
-      .get("http://192.168.221.172:8000/api/mesures/")
-      .then((res) => setData(res.data))
-      .catch((err) => console.log(err));
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    if (data.length === 0) return;
-
-    const chart = chartRef.current;
-    if (!chart) return;
-
-    const ctx = chart.ctx;
-
-    const gradient1 = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient1.addColorStop(0, "#00eaff");
-    gradient1.addColorStop(1, "rgba(0,234,255,0)");
-
-    const gradient2 = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient2.addColorStop(0, "#ff9a00");
-    gradient2.addColorStop(1, "rgba(255,154,0,0)");
-
-    setChartData({
-      labels: data.map((d) =>
-        new Date(d.created_at).toLocaleDateString("fr-FR")
-      ),
-      datasets: [
-        {
-          label: "Température (°C)",
-          data: data.map((d) => d.temp),
-          borderColor: "#00eaff",
-          backgroundColor: gradient1,
-          fill: true,
-          tension: 0.5,
-          pointRadius: 0,
-          borderWidth: 3
-        },
-        {
-          label: "Humidité (%)",
-          data: data.map((d) => d.hum),
-          borderColor: "#ff9a00",
-          backgroundColor: gradient2,
-          fill: true,
-          tension: 0.5,
-          pointRadius: 0,
-          borderWidth: 3
-        }
-      ]
-    });
-  }, [data]);
 
   const options = {
     responsive: true,
     animation: { duration: 1200, easing: "easeOutQuart" },
     plugins: {
-      legend: { display: false },
+      legend: { display: true, position: "top" },
       tooltip: {
         backgroundColor: "white",
         titleColor: "black",
@@ -114,19 +126,19 @@ const Graph = () => {
     <div
       style={{
         width: "90%",
-        margin: "auto",
+        margin: "40px auto",
         background: "white",
         padding: "30px",
         borderRadius: "20px",
         boxShadow: "0 4px 25px rgba(0,0,0,0.1)"
       }}
     >
-      <h2 style={{ textAlign: "center" }}>
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
         Température & Humidité — Dashboard
       </h2>
 
       {chartData ? (
-        <Line ref={chartRef} data={chartData} options={options} />
+        <Line data={chartData} options={options} />
       ) : (
         <p style={{ textAlign: "center" }}>Chargement...</p>
       )}
