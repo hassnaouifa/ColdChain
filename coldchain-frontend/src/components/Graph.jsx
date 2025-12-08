@@ -10,7 +10,7 @@ import {
   LineElement,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 
@@ -26,7 +26,8 @@ ChartJS.register(
 );
 
 const Graph = () => {
-  const [chartData, setChartData] = useState(null);
+  const [tempData, setTempData] = useState(null);
+  const [humData, setHumData] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -35,52 +36,58 @@ const Graph = () => {
 
       if (!data || data.length === 0) return;
 
-      // Trier les données par date
       const sorted = data.sort(
         (a, b) => new Date(a.created_at) - new Date(b.created_at)
       );
 
-      // Créer les gradients dynamiquement (nécessite un canvas temporaire)
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
       const gradientTemp = ctx.createLinearGradient(0, 0, 0, 300);
-      gradientTemp.addColorStop(0, "#00eaff");
-      gradientTemp.addColorStop(1, "rgba(0,234,255,0)");
+      gradientTemp.addColorStop(0, "#ff9a00");
+      gradientTemp.addColorStop(1, "rgba(255,154,0,0)");
 
       const gradientHum = ctx.createLinearGradient(0, 0, 0, 300);
-      gradientHum.addColorStop(0, "#ff9a00");
-      gradientHum.addColorStop(1, "rgba(255,154,0,0)");
+      gradientHum.addColorStop(0, "#00eaff");
+      gradientHum.addColorStop(1, "rgba(0,234,255,0)");
 
-      setChartData({
-        labels: sorted.map(
-          (d) =>
-            new Date(d.created_at).toLocaleDateString("fr-FR") +
-            " " +
-            new Date(d.created_at).toLocaleTimeString("fr-FR")
-        ),
+      const labels = sorted.map(
+        (d) =>
+          new Date(d.created_at).toLocaleDateString("fr-FR") +
+          " " +
+          new Date(d.created_at).toLocaleTimeString("fr-FR")
+      );
+
+      setTempData({
+        labels,
         datasets: [
           {
             label: "Température (°C)",
             data: sorted.map((d) => d.temp),
-            borderColor: "#00eaff",
+            borderColor: "#ff9a00",
             backgroundColor: gradientTemp,
             fill: true,
             tension: 0.5,
             pointRadius: 0,
-            borderWidth: 3
+            borderWidth: 3,
           },
+        ],
+      });
+
+      setHumData({
+        labels,
+        datasets: [
           {
             label: "Humidité (%)",
             data: sorted.map((d) => d.hum),
-            borderColor: "#ff9a00",
+            borderColor: "#00eaff",
             backgroundColor: gradientHum,
             fill: true,
             tension: 0.5,
             pointRadius: 0,
-            borderWidth: 3
-          }
-        ]
+            borderWidth: 3,
+          },
+        ],
       });
     } catch (err) {
       console.log("Erreur API :", err);
@@ -93,55 +100,78 @@ const Graph = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const options = {
+  const baseOptions = {
     responsive: true,
     animation: { duration: 1200, easing: "easeOutQuart" },
     plugins: {
       legend: { display: true, position: "top" },
-      tooltip: {
-        backgroundColor: "white",
-        titleColor: "black",
-        bodyColor: "#333",
-        padding: 10
-      },
       zoom: {
         zoom: { wheel: { enabled: true }, mode: "x" },
-        pan: { enabled: true, mode: "x" }
-      }
+        pan: { enabled: true, mode: "x" },
+      },
     },
     scales: {
-      x: {
-        grid: { display: false },
-        ticks: { color: "#333" }
-      },
+      x: { grid: { display: false }, ticks: { color: "#333" } },
       y: {
         beginAtZero: true,
         grid: { color: "rgba(0,0,0,0.05)" },
-        ticks: { color: "#333" }
-      }
-    }
+        ticks: { color: "#333" },
+      },
+    },
   };
 
   return (
-    <div
-      style={{
-        width: "90%",
-        margin: "40px auto",
-        background: "white",
-        padding: "30px",
-        borderRadius: "20px",
-        boxShadow: "0 4px 25px rgba(0,0,0,0.1)"
-      }}
-    >
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-        Température & Humidité — Dashboard
-      </h2>
+    <div style={{ width: "95%", margin: "40px auto" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "30px",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            flex: "1",
+            minWidth: "350px",
+            background: "white",
+            padding: "30px",
+            borderRadius: "20px",
+            boxShadow: "0 4px 25px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+            Température — Dashboard
+          </h2>
 
-      {chartData ? (
-        <Line data={chartData} options={options} />
-      ) : (
-        <p style={{ textAlign: "center" }}>Chargement...</p>
-      )}
+          {tempData ? (
+            <Line data={tempData} options={baseOptions} />
+          ) : (
+            <p style={{ textAlign: "center" }}>Chargement...</p>
+          )}
+        </div>
+
+        <div
+          style={{
+            flex: "1",
+            minWidth: "350px",
+            background: "white",
+            padding: "30px",
+            borderRadius: "20px",
+            boxShadow: "0 4px 25px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+            Humidité — Dashboard
+          </h2>
+
+          {humData ? (
+            <Line data={humData} options={baseOptions} />
+          ) : (
+            <p style={{ textAlign: "center" }}>Chargement...</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
