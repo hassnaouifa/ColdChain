@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -16,10 +17,10 @@ const Dashboard = () => {
 
       if (data && data.length > 0) {
         // Trier par date pour s'assurer que la dernière mesure est récupérée
-        const sorted = data.sort(
-          (a, b) => new Date(a.created_at) - new Date(b.created_at)
-        );
-        setLatest(sorted[sorted.length - 1]); // dernière mesure
+       const sorted = data.sort(
+       (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      );
+    setLatest(sorted[sorted.length - 1]); 
       }
     } catch (e) {
       console.log("Erreur API :", e);
@@ -57,17 +58,18 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      <Navbar />
       <h1>Dashboard Température & Humidité (DHT11)</h1>
       <div className="cards-container">
         <div className="card">
           <div className="header">Température</div>
           <div className="value">{latest ? latest.temp + " °C" : "-- °C"}</div>
-          <div className="time">{latest ? getElapsed(latest.created_at) : "--"}</div>
+          <div className="time">{latest ? getElapsed(latest.timestamp) : "--"}</div>
         </div>
         <div className="card">
           <div className="header">Humidité</div>
           <div className="value">{latest ? latest.hum + " %" : "-- %"}</div>
-          <div className="time">{latest ? getElapsed(latest.created_at) : "--"}</div>
+          <div className="time">{latest ? getElapsed(latest.timestamp) : "--"}</div>
         </div>
       </div>
       <button onClick={() => navigate("/graph")} className="graph-button">

@@ -28,6 +28,7 @@ DEBUG = True
 #ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['*']
 
+AUTH_USER_MODEL = 'monitoring.User'
 
 # Application definition
 
@@ -140,3 +141,14 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'hassnaouifatima101@gmail.com'
 EMAIL_HOST_PASSWORD = 'plqx xkke xivr szhv'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',  # session normale
+        'rest_framework.authentication.BasicAuthentication',    # optionnel pour tests Postman
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # requiert login
+    ],
+}
+

@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
-
+from users.views import MyTokenObtainPairView
 def home(request):
     return JsonResponse({"message": "API Cold Chain Monitoring en marche !"})
 
@@ -25,4 +25,6 @@ urlpatterns = [
     path('', home),              # page racine (facultative)
     path('admin/', admin.site.urls),
     path('api/', include('monitoring.urls')),
+    path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+
 ]

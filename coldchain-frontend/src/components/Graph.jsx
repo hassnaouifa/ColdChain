@@ -37,7 +37,7 @@ const Graph = () => {
       if (!data || data.length === 0) return;
 
       const sorted = data.sort(
-        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
       );
 
       const canvas = document.createElement("canvas");
@@ -53,9 +53,9 @@ const Graph = () => {
 
       const labels = sorted.map(
         (d) =>
-          new Date(d.created_at).toLocaleDateString("fr-FR") +
+          new Date(d.timestamp).toLocaleDateString("fr-FR") +
           " " +
-          new Date(d.created_at).toLocaleTimeString("fr-FR")
+          new Date(d.timestamp).toLocaleTimeString("fr-FR")
       );
 
       setTempData({

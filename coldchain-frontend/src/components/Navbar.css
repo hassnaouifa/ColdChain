@@ -1,0 +1,96 @@
+/* src/components/Navbar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #1e3a8a, #2563eb, #1e3a8a);
+  background-size: 300% 300%;
+  animation: gradientBG 8s ease infinite;
+  color: #f9fafb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 10px 10px;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.navbar-logo {
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  animation: logoPulse 2s infinite alternate;
+}
+
+@keyframes logoPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.07); }
+}
+
+.navbar-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-buttons .btn {
+  position: relative;
+  margin-left: 14px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  background: linear-gradient(45deg, #2563eb, #3b82f6);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease;
+  overflow: hidden;
+}
+
+.navbar-buttons .btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(45deg, #3b82f6, #2563eb);
+}
+
+.admin-btn {
+  background: linear-gradient(45deg, #ef4444, #f87171);
+}
+
+.admin-btn:hover {
+  background: linear-gradient(45deg, #f87171, #ef4444);
+}
+
+/* Effet de survol dynamique */
+.navbar-buttons .btn::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.navbar-buttons .btn:hover::after {
+  opacity: 1;
+}
+
+/* Petite animation d'ombre pulsante pour les boutons */
+.navbar-buttons .btn {
+  animation: shadowPulse 3s infinite alternate;
+}
+
+@keyframes shadowPulse {
+  0% { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  100% { box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
+}
